@@ -24,7 +24,7 @@ jobs:
           npm install -g mbt
 
       - name: Build MTAR archive
-        run: mbt build -t ./mta_archives
+        run: mbt build -t /tmp/mta_archives
 
       - name: Upload MTAR to SAP cTMS
         uses: mauriciolauffer/deploy-to-sap-btp-with-ctms@main
