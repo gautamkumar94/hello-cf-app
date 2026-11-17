@@ -1,0 +1,10 @@
+applications:
+- name: hello-cf-app
+  memory: 128M
+  instances: 1
+
+  random-route: true
+
+  buildpacks:
+    - nodejs_buildpack
+    
