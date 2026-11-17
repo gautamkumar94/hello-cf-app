@@ -1,0 +1,19 @@
+
+_schema-version: "3.2"
+ID: hello-cf-app
+version: 1.0.0
+
+modules:
+  - name: hello-cf-app
+    type: nodejs
+    path: .
+
+    parameters:
+      memory: 256M
+      disk-quota: 512M
+      random-route: true
+
+    provides:
+      - name: hello-cf-app-api
+        properties:
+          url: ${default-url}
