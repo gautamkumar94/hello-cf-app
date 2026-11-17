@@ -24,7 +24,7 @@ jobs:
           npm install -g mbt
 
       - name: Build MTAR archive
-        run: mbt build -t /tmp/mta_archives
+        run: mbt build -t ./mta_archives
 
       - name: Upload MTAR to SAP cTMS
         uses: mauriciolauffer/deploy-to-sap-btp-with-ctms@main
@@ -34,7 +34,7 @@ jobs:
           CTMS_CLIENT_SECRET: ${{ secrets.CTMS_CLIENT_SECRET }}
           CTMS_API_URL: ${{ secrets.CTMS_API_URL }}
           CTMS_NODE_NAME: ${{ secrets.CTMS_NODE_NAME }}
-          CTMS_FILE_PATH: /tmp/mta_archives/hello-cf-app_1.0.0.mtar
+          CTMS_FILE_PATH: ./mta_archives/hello-cf-app_1.0.0.mtar
           CTMS_TR_DESCRIPTION: "GitHub Commit ${{ github.sha }}"
           CTMS_TR_CONTENT_TYPE: MTA
           CTMS_TR_STORAGE_TYPE: FILE
