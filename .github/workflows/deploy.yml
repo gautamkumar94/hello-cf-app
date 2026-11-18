@@ -81,10 +81,11 @@ jobs:
           TR_STATUS=$(echo "$TR_RES" | tail -n1)
           TR_BODY=$(echo "$TR_RES" | sed '$d')
           
-          if [ "$TR_STATUS" != "201" ]; then
+          if [ "$TR_STATUS" != "201" ] && [ "$TR_STATUS" != "200" ]; then
             echo "Error: Transport Request failed with status $TR_STATUS"
             echo "Response: $TR_BODY"
             exit 1
           fi
           
           echo "Transport Request Successfully Created!"
+          echo "Transport Request Details: $TR_BODY"
