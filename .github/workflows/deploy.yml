@@ -35,27 +35,34 @@ jobs:
           path: ./mta_archives/hello-cf-app_1.0.0.mtar
 
       - name: Upload MTAR to SAP cTMS via API
+        env:
+          CLIENT_ID: ${{ secrets.CTMS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CTMS_CLIENT_SECRET }}
+          TOKEN_URL: ${{ secrets.CTMS_TOKEN_URL }}
+          API_URL: ${{ secrets.CTMS_API_URL }}
+          NODE_NAME: ${{ secrets.CTMS_NODE_NAME }}
         run: |
           echo "1. Getting OAuth Token..."
-          TOKEN_RES=$(curl -s -X POST "${{ secrets.CTMS_TOKEN_URL }}" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            --data-urlencode "grant_type=client_credentials" \
-            --data-urlencode "client_id=${{ secrets.CTMS_CLIENT_ID }}" \
-            --data-urlencode "client_secret=${{ secrets.CTMS_CLIENT_SECRET }}")
+          
+          # printf safely processes the $ symbol without triggering Bash variables
+          AUTH_HEADER=$(printf '%s:%s' "$CLIENT_ID" "$CLIENT_SECRET" | base64 | tr -d '\n')
+          
+          TOKEN_RES=$(curl -s -X POST "${TOKEN_URL}?grant_type=client_credentials" \
+            -H "Authorization: Basic $AUTH_HEADER" \
+            -H "Content-Type: application/x-www-form-urlencoded")
           
           TOKEN=$(echo "$TOKEN_RES" | jq -r .access_token)
           
           if [ "$TOKEN" == "null" ] || [ -z "$TOKEN" ]; then
             echo "Error: Failed to get OAuth token."
             echo "SAP Response: $TOKEN_RES"
-            echo "Check your GitHub Secrets! Make sure there are NO quotation marks or spaces in CTMS_CLIENT_ID or CTMS_CLIENT_SECRET."
             exit 1
           fi
           
           echo "Token retrieved successfully!"
           
           echo "2. Uploading MTAR file to cTMS..."
-          FILE_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -F "file=@./mta_archives/hello-cf-app_1.0.0.mtar" "${{ secrets.CTMS_API_URL }}/v2/files")
+          FILE_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -F "file=@./mta_archives/hello-cf-app_1.0.0.mtar" "${API_URL}/v2/files")
           HTTP_STATUS=$(echo "$FILE_RES" | tail -n1)
           FILE_BODY=$(echo "$FILE_RES" | sed '$d')
           
@@ -68,10 +75,10 @@ jobs:
           FILE_ID=$(echo "$FILE_BODY" | jq -r .fileId)
           echo "Success! Uploaded File ID: $FILE_ID"
           
-          echo "3. Creating Transport Request in node ${{ secrets.CTMS_NODE_NAME }}..."
-          REQ_BODY=$(jq -n --arg desc "GitHub Commit ${{ github.sha }}" --arg fileId "$FILE_ID" --arg nodeName "${{ secrets.CTMS_NODE_NAME }}" '{nodeName: $nodeName, contentType: "MTA", description: $desc, storageType: "FILE", entries: [{uri: $fileId}]}')
+          echo "3. Creating Transport Request in node $NODE_NAME..."
+          REQ_BODY=$(jq -n --arg desc "GitHub Commit ${{ github.sha }}" --arg fileId "$FILE_ID" --arg nodeName "$NODE_NAME" '{nodeName: $nodeName, contentType: "MTA", description: $desc, storageType: "FILE", entries: [{uri: $fileId}]}')
           
-          TR_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$REQ_BODY" "${{ secrets.CTMS_API_URL }}/v2/nodes/${{ secrets.CTMS_NODE_NAME }}/transportRequests")
+          TR_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$REQ_BODY" "${API_URL}/v2/nodes/${NODE_NAME}/transportRequests")
           TR_STATUS=$(echo "$TR_RES" | tail -n1)
           TR_BODY=$(echo "$TR_RES" | sed '$d')
           
