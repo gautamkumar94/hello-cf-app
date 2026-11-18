@@ -43,8 +43,6 @@ jobs:
           NODE_NAME: ${{ secrets.CTMS_NODE_NAME }}
         run: |
           echo "1. Getting OAuth Token..."
-          
-          # printf safely processes the $ symbol without triggering Bash variables
           AUTH_HEADER=$(printf '%s:%s' "$CLIENT_ID" "$CLIENT_SECRET" | base64 | tr -d '\n')
           
           TOKEN_RES=$(curl -s -X POST "${TOKEN_URL}?grant_type=client_credentials" \
@@ -62,7 +60,8 @@ jobs:
           echo "Token retrieved successfully!"
           
           echo "2. Uploading MTAR file to cTMS..."
-          FILE_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -F "file=@./mta_archives/hello-cf-app_1.0.0.mtar" "${API_URL}/v2/files")
+          # The fix is here: /v2/files/upload instead of /v2/files
+          FILE_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -F "file=@./mta_archives/hello-cf-app_1.0.0.mtar" "${API_URL}/v2/files/upload")
           HTTP_STATUS=$(echo "$FILE_RES" | tail -n1)
           FILE_BODY=$(echo "$FILE_RES" | sed '$d')
           
