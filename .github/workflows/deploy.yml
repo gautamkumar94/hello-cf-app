@@ -77,7 +77,7 @@ jobs:
           echo "3. Creating Transport Request in node $NODE_NAME..."
           REQ_BODY=$(jq -n --arg desc "GitHub Commit ${{ github.sha }}" --arg fileId "$FILE_ID" --arg nodeName "$NODE_NAME" '{nodeName: $nodeName, contentType: "MTA", description: $desc, storageType: "FILE", entries: [{uri: $fileId}]}')
           
-          TR_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$REQ_BODY" "${API_URL}/v2/nodes/${NODE_NAME}/transportRequests")
+          TR_RES=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$REQ_BODY" "${API_URL}/v2/nodes/upload")
           TR_STATUS=$(echo "$TR_RES" | tail -n1)
           TR_BODY=$(echo "$TR_RES" | sed '$d')
           
