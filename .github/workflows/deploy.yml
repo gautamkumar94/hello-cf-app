@@ -25,8 +25,14 @@ jobs:
 
       - name: Build and verify MTAR archive
         run: |
-          npx mbt build -t ./mta_archives
+          mbt build -t ./mta_archives
           unzip -l ./mta_archives/hello-cf-app_1.0.0.mtar
+
+      - name: Save MTAR as GitHub Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtar-archive
+          path: ./mta_archives/hello-cf-app_1.0.0.mtar
 
       - name: Upload MTAR to SAP cTMS
         uses: mauriciolauffer/deploy-to-sap-btp-with-ctms@main
