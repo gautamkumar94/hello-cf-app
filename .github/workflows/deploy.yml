@@ -21,10 +21,12 @@ jobs:
       - name: Install dependencies and Cloud MTA Build Tool
         run: |
           npm ci
-          npm install -g mbt
+          npm install --no-save mbt
 
-      - name: Build MTAR archive
-        run: mbt build -t ./mta_archives
+      - name: Build and verify MTAR archive
+        run: |
+          npx mbt build -t ./mta_archives
+          unzip -l ./mta_archives/hello-cf-app_1.0.0.mtar
 
       - name: Upload MTAR to SAP cTMS
         uses: mauriciolauffer/deploy-to-sap-btp-with-ctms@main
