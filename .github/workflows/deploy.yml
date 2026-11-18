@@ -45,4 +45,4 @@ jobs:
           CTMS_FILE_PATH: ./mta_archives/hello-cf-app_1.0.0.mtar
           CTMS_TR_DESCRIPTION: "GitHub Commit ${{ github.sha }}"
           CTMS_TR_CONTENT_TYPE: MTA
-          CTMS_TR_STORAGE_TYPE: FILE
+          
