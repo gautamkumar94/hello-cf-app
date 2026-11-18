@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies and Cloud MTA Build Tool
         run: |
           npm ci
-          npm install --no-save mbt
+          npm install -g mbt
 
       - name: Build and verify MTAR archive
         run: |
