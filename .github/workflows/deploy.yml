@@ -37,12 +37,18 @@ jobs:
       - name: Upload MTAR to SAP cTMS via API
         run: |
           echo "1. Getting OAuth Token..."
-          TOKEN_RES=$(curl -s -X POST -u "${{ secrets.CTMS_CLIENT_ID }}:${{ secrets.CTMS_CLIENT_SECRET }}" "${{ secrets.CTMS_TOKEN_URL }}?grant_type=client_credentials")
+          TOKEN_RES=$(curl -s -X POST "${{ secrets.CTMS_TOKEN_URL }}" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "client_id=${{ secrets.CTMS_CLIENT_ID }}" \
+            --data-urlencode "client_secret=${{ secrets.CTMS_CLIENT_SECRET }}")
+          
           TOKEN=$(echo "$TOKEN_RES" | jq -r .access_token)
           
           if [ "$TOKEN" == "null" ] || [ -z "$TOKEN" ]; then
             echo "Error: Failed to get OAuth token."
             echo "SAP Response: $TOKEN_RES"
+            echo "Check your GitHub Secrets! Make sure there are NO quotation marks or spaces in CTMS_CLIENT_ID or CTMS_CLIENT_SECRET."
             exit 1
           fi
           
