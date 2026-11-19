@@ -8,7 +8,7 @@ app.get("/", (req, res) => {
     res.send(`
         <h1>Hello SAP BTP Cloud Foundry!</h1>
         <p>My first CF application.</p>
-        <p>alert Notification Test</p>
+        <p>alert Notification Test , Alert Notification is modified</p>
     `);
 });
 
